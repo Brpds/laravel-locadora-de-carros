@@ -34,7 +34,16 @@
                 <!--início card marcas-->
                 <card-component titulo="Lista de Marcas">
                     <template v-slot:conteudo>
-                        <table-component :dados="marcas" :titulos="['id', 'nome', 'imagem']">
+                        <table-component
+                         :dados="marcas"
+                         :titulos="{
+                            //caso deseje-se mais ou menos colunas, basta adicionar/remover aqui os títulos correspondentes às colunas no db
+                            id: {titulo: 'ID', tipo: 'text'},
+                            nome: {titulo: 'Nome', tipo: 'text'},
+                            imagem: {titulo: 'Imagem', tipo: 'imagem'},
+                            created_at: {titulo: 'Criado em:', tipo: 'data'},
+                         }">
+                         <!--['id', 'nome', 'imagem', 'created_at']-->
                             
                         </table-component>
                     </template>

@@ -2410,6 +2410,15 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
@@ -2575,9 +2584,45 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  props: ['dados', 'titulos']
+  props: ['dados', 'titulos'],
+  computed: {
+    dadosFiltrados: function dadosFiltrados() {
+      var campos = Object.keys(this.titulos);
+      var dadosFiltrados = [];
+      this.dados.map(function (item, chave) {
+        //console.log(chave, item)
+
+        var itemFiltrado = {};
+        campos.forEach(function (campo) {
+          //console.log(campo)
+          itemFiltrado[campo] = item[campo]; //utilizar a sintaxe de array para atribuir valores a objetos
+
+          //console.log(chave, item, campo)
+        });
+        dadosFiltrados.push(itemFiltrado);
+      });
+      //console.log(campos)
+      //console.log()
+
+      //console.log(dadosFiltrados)
+
+      return dadosFiltrados;
+    }
+  }
 });
 
 /***/ }),
@@ -39010,7 +39055,13 @@ var render = function () {
                       _c("table-component", {
                         attrs: {
                           dados: _vm.marcas,
-                          titulos: ["id", "nome", "imagem"],
+                          titulos: {
+                            //caso deseje-se mais ou menos colunas, basta adicionar/remover aqui os títulos correspondentes às colunas no db
+                            id: { titulo: "ID", tipo: "text" },
+                            nome: { titulo: "Nome", tipo: "text" },
+                            imagem: { titulo: "Imagem", tipo: "imagem" },
+                            created_at: { titulo: "Criado em:", tipo: "data" },
+                          },
                         },
                       }),
                     ]
@@ -39317,15 +39368,9 @@ var render = function () {
         _c(
           "tr",
           _vm._l(_vm.titulos, function (t, key) {
-            return _c(
-              "th",
-              {
-                key: key,
-                staticClass: "text-uppercase",
-                attrs: { scope: "col" },
-              },
-              [_vm._v(_vm._s(t))]
-            )
+            return _c("th", { key: key, attrs: { scope: "col" } }, [
+              _vm._v(_vm._s(t.titulo)),
+            ])
           }),
           0
         ),
@@ -39333,26 +39378,32 @@ var render = function () {
       _vm._v(" "),
       _c(
         "tbody",
-        _vm._l(_vm.dados, function (obj) {
+        _vm._l(_vm.dadosFiltrados, function (obj, chave) {
           return _c(
             "tr",
-            { key: obj.id },
-            _vm._l(obj, function (valor, chave) {
-              return _vm.titulos.includes(chave)
-                ? _c("td", { key: chave }, [
-                    chave == "imagem"
-                      ? _c("span", [
-                          _c("img", {
-                            attrs: {
-                              src: "/storage/" + valor,
-                              width: "30",
-                              height: "30",
-                            },
-                          }),
-                        ])
-                      : _c("span", [_vm._v(_vm._s(valor))]),
-                  ])
-                : _vm._e()
+            { key: chave },
+            _vm._l(obj, function (valor, chaveValor) {
+              return _c("td", { key: chaveValor }, [
+                _vm.titulos[chaveValor].tipo == "text"
+                  ? _c("span", [_vm._v(_vm._s(valor))])
+                  : _vm._e(),
+                _vm._v(" "),
+                _vm.titulos[chaveValor].tipo == "data"
+                  ? _c("span", [_vm._v(_vm._s("..." + valor))])
+                  : _vm._e(),
+                _vm._v(" "),
+                _vm.titulos[chaveValor].tipo == "imagem"
+                  ? _c("span", [
+                      _c("img", {
+                        attrs: {
+                          src: "/storage/" + valor,
+                          width: "30",
+                          height: "30",
+                        },
+                      }),
+                    ])
+                  : _vm._e(),
+              ])
             }),
             0
           )
