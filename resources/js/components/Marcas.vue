@@ -35,7 +35,7 @@
                 <card-component titulo="Lista de Marcas">
                     <template v-slot:conteudo>
                         <table-component
-                         :dados="marcas"
+                         :dados="marcas.data"
                          :titulos="{
                             //caso deseje-se mais ou menos colunas, basta adicionar/remover aqui os títulos correspondentes às colunas no db
                             id: {titulo: 'ID', tipo: 'text'},
@@ -48,7 +48,25 @@
                         </table-component>
                     </template>
                     <template v-slot:rodape>
-                        <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#modalMarca">Adicionar</button>
+                        <div class="row">
+
+                            <div class="col-10">
+                                <pagination-component>
+                                    <!--:class="l.active" ficará responsável por aplicar a classe active no item li-->
+                                    <li v-for="l, key in marcas.links" :key="key" 
+                                        :class="l.active ? 'page-item active' : 'page-item '" 
+                                        @click="paginacao(l)"
+                                    >
+                                        <!--v-html="item" ficará reponsável por intepretar caracteres html, enquanto preenche o elemento com o texto recebido-->
+                                        <a class="page-link" v-html="l.label"></a></li>
+                                </pagination-component>
+                            </div>
+
+                            <div class="col">
+                                <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#modalMarca">Adicionar</button>
+                            </div>
+
+                        </div>
                     </template>
                 </card-component>
                 <!-- fim card marcas -->
@@ -108,11 +126,18 @@ import axios from 'axios';
                 arquivoImagem: [],
                 transacaoStatus:'',
                 transacaoDetalhes:{},
-                marcas:[]
+                marcas:{ data: [] }
             }
         },
 
         methods:{
+            paginacao(l){
+                if(l.url){
+                    this.urlBase = l.url; //ajustando a url com o parâmetro de página
+                    this.carregarLista(); //requisitando os dados para a API
+                }
+                
+            },
             carregarLista(){
 
                 let config = {
@@ -157,7 +182,7 @@ import axios from 'axios';
                         this.transacaoDetalhes = {
                             mensagem: 'ID do registro: ' + response.data.id
                         };
-                        console.log(response);
+                        //console.log(response);
                     })
                     .catch(errors => {
                         this.transacaoStatus = 'erro'
