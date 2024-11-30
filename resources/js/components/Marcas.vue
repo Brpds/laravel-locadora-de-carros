@@ -14,19 +14,19 @@
                                     id-help="idHelp"
                                     texto-ajuda="Opcional. Informe o ID da marca."
                                 >
-                                    <input type="number" class="form-control" id="inputId" aria-describedby="idHelp" placeholder="ID">
+                                    <input type="number" class="form-control" id="inputId" aria-describedby="idHelp" placeholder="ID" v-model="busca.id">
                                 </input-container-component>
                     
                             </div>
                             <div class="col mb-3">
                                 <input-container-component id="inputNome" titulo="Nome" id-help="nomeHelp" texto-ajuda="Opcional. Informe o Nome da marca.">
-                                    <input type="text" class="form-control" id="inputNome" aria-describedby="nomeHelp" placeholder="Nome da Marca">
+                                    <input type="text" class="form-control" id="inputNome" aria-describedby="nomeHelp" placeholder="Nome da Marca" v-model="busca.nome">
                                 </input-container-component>
                             </div>
                         </div>
                     </template>
                     <template v-slot:rodape>
-                        <button type="button" class="btn btn-primary btn-sm float-right">Buscar</button>
+                        <button type="button" class="btn btn-primary btn-sm float-right" @click="pesquisar()">Buscar</button>
                     </template>
                 </card-component>
                 <!-- fim card buscas -->
@@ -122,23 +122,67 @@ import axios from 'axios';
         data(){
             return {
                 urlBase:'http://localhost:8000/api/v1/marca',
+                urlPaginacao: '',
+                urlFiltro: '',
                 nomeMarca:'',
                 arquivoImagem: [],
                 transacaoStatus:'',
                 transacaoDetalhes:{},
-                marcas:{ data: [] }
+                marcas:{ data: [] },
+                busca:{
+                    id: '',
+                    nome: '',
+                }
             }
         },
 
         methods:{
+            pesquisar(){
+                //console.log(this.busca);
+
+                let filtro = '';
+                for(let chave in this.busca){
+                    //console.log(chave, this.busca[chave])
+
+                    //função que popula o filtro com os parâmetros passados.
+                    //caso não haja parâmetro em algum dos itens passados, o item será ignorado
+                    if(this.busca[chave]){
+                        if(filtro != ''){
+                            filtro += ';'
+                        }
+                        filtro += chave + ':like:' + this.busca[chave]
+    
+                    }
+
+                }
+                //caso o filtro esteja preenchido, será adicionado à url
+                if(filtro != ''){
+                    //define urlPaginacao para page=1 para que a aplicação não se perca se a requisição for feita em pagina diferente de 1
+                    this.urlPaginacao = 'page=1'
+                    this.urlFiltro = '&filtro=' + filtro;
+                }else{
+                    //se o filtro não estiver preenchido, o valor será vazio
+                    this.urlFiltro = '';
+                }
+                //chamar o método carregarLista aqui formará uma url dinâmica com o filtro passado
+                this.carregarLista();
+            },
             paginacao(l){
                 if(l.url){
-                    this.urlBase = l.url; //ajustando a url com o parâmetro de página
+                    //this.urlBase = l.url; //ajustando a url com o parâmetro de página
+                    this.urlPaginacao = l.url.split('?')[1] //faz o split da url para capturar o parâmetro de paginação
                     this.carregarLista(); //requisitando os dados para a API
                 }
                 
             },
             carregarLista(){
+
+                /*
+                    variável url que armazenará os parâmetros de paginação e a url
+                    base para que não haja conflito com a paginação do laravel quando
+                    novos parâmetros de pesquisa forem passados
+                */
+                let url = this.urlBase + '?' + this.urlPaginacao + this.urlFiltro;
 
                 let config = {
                     headers: {
@@ -146,7 +190,10 @@ import axios from 'axios';
                         'Authorization': this.token
                     }
                 };
-                axios.get(this.urlBase, config)
+
+                console.log(url)
+
+                axios.get(url, config)
                     .then(response => {
                         this.marcas = response.data;
                         //console.log(this.marcas)

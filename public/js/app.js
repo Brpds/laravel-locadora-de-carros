@@ -2453,31 +2453,73 @@ __webpack_require__.r(__webpack_exports__);
   data: function data() {
     return {
       urlBase: 'http://localhost:8000/api/v1/marca',
+      urlPaginacao: '',
+      urlFiltro: '',
       nomeMarca: '',
       arquivoImagem: [],
       transacaoStatus: '',
       transacaoDetalhes: {},
       marcas: {
         data: []
+      },
+      busca: {
+        id: '',
+        nome: ''
       }
     };
   },
   methods: {
+    pesquisar: function pesquisar() {
+      //console.log(this.busca);
+
+      var filtro = '';
+      for (var chave in this.busca) {
+        //console.log(chave, this.busca[chave])
+
+        //função que popula o filtro com os parâmetros passados.
+        //caso não haja parâmetro em algum dos itens passados, o item será ignorado
+        if (this.busca[chave]) {
+          if (filtro != '') {
+            filtro += ';';
+          }
+          filtro += chave + ':like:' + this.busca[chave];
+        }
+      }
+      //caso o filtro esteja preenchido, será adicionado à url
+      if (filtro != '') {
+        //define urlPaginacao para page=1 para que a aplicação não se perca se a requisição for feita em pagina diferente de 1
+        this.urlPaginacao = 'page=1';
+        this.urlFiltro = '&filtro=' + filtro;
+      } else {
+        //se o filtro não estiver preenchido, o valor será vazio
+        this.urlFiltro = '';
+      }
+      //chamar o método carregarLista aqui formará uma url dinâmica com o filtro passado
+      this.carregarLista();
+    },
     paginacao: function paginacao(l) {
       if (l.url) {
-        this.urlBase = l.url; //ajustando a url com o parâmetro de página
+        //this.urlBase = l.url; //ajustando a url com o parâmetro de página
+        this.urlPaginacao = l.url.split('?')[1]; //faz o split da url para capturar o parâmetro de paginação
         this.carregarLista(); //requisitando os dados para a API
       }
     },
     carregarLista: function carregarLista() {
       var _this = this;
+      /*
+          variável url que armazenará os parâmetros de paginação e a url
+          base para que não haja conflito com a paginação do laravel quando
+          novos parâmetros de pesquisa forem passados
+      */
+      var url = this.urlBase + '?' + this.urlPaginacao + this.urlFiltro;
       var config = {
         headers: {
           'Accept': 'application/json',
           'Authorization': this.token
         }
       };
-      axios__WEBPACK_IMPORTED_MODULE_0___default().get(this.urlBase, config).then(function (response) {
+      console.log(url);
+      axios__WEBPACK_IMPORTED_MODULE_0___default().get(url, config).then(function (response) {
         _this.marcas = response.data;
         //console.log(this.marcas)
       })["catch"](function (errors) {
@@ -39106,12 +39148,33 @@ var render = function () {
                               },
                               [
                                 _c("input", {
+                                  directives: [
+                                    {
+                                      name: "model",
+                                      rawName: "v-model",
+                                      value: _vm.busca.id,
+                                      expression: "busca.id",
+                                    },
+                                  ],
                                   staticClass: "form-control",
                                   attrs: {
                                     type: "number",
                                     id: "inputId",
                                     "aria-describedby": "idHelp",
                                     placeholder: "ID",
+                                  },
+                                  domProps: { value: _vm.busca.id },
+                                  on: {
+                                    input: function ($event) {
+                                      if ($event.target.composing) {
+                                        return
+                                      }
+                                      _vm.$set(
+                                        _vm.busca,
+                                        "id",
+                                        $event.target.value
+                                      )
+                                    },
                                   },
                                 }),
                               ]
@@ -39137,12 +39200,33 @@ var render = function () {
                               },
                               [
                                 _c("input", {
+                                  directives: [
+                                    {
+                                      name: "model",
+                                      rawName: "v-model",
+                                      value: _vm.busca.nome,
+                                      expression: "busca.nome",
+                                    },
+                                  ],
                                   staticClass: "form-control",
                                   attrs: {
                                     type: "text",
                                     id: "inputNome",
                                     "aria-describedby": "nomeHelp",
                                     placeholder: "Nome da Marca",
+                                  },
+                                  domProps: { value: _vm.busca.nome },
+                                  on: {
+                                    input: function ($event) {
+                                      if ($event.target.composing) {
+                                        return
+                                      }
+                                      _vm.$set(
+                                        _vm.busca,
+                                        "nome",
+                                        $event.target.value
+                                      )
+                                    },
                                   },
                                 }),
                               ]
@@ -39164,6 +39248,11 @@ var render = function () {
                         {
                           staticClass: "btn btn-primary btn-sm float-right",
                           attrs: { type: "button" },
+                          on: {
+                            click: function ($event) {
+                              return _vm.pesquisar()
+                            },
+                          },
                         },
                         [_vm._v("Buscar")]
                       ),
