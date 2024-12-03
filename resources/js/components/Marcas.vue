@@ -2,7 +2,7 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-8">
-                <!-- início card buscas -->
+                <!-- início card buscas -->                
                 <card-component titulo="Busca de Marcas">
                     <template v-slot:conteudo>
                         <div class="form-row">
@@ -36,6 +36,9 @@
                     <template v-slot:conteudo>
                         <table-component
                          :dados="marcas.data"
+                         :visualizar="{ visivel:true, dataToggle:'modal', dataTarget:'#modalMarcaVisualizar'}"
+                         :atualizar="true"
+                         :remover="true"
                          :titulos="{
                             //caso deseje-se mais ou menos colunas, basta adicionar/remover aqui os títulos correspondentes às colunas no db
                             id: {titulo: 'ID', tipo: 'text'},
@@ -72,6 +75,8 @@
                 <!-- fim card marcas -->
             </div>
         </div>
+
+        <!--Início modal inclusão de marca-->
         <modal-component id="modalMarca" titulo="Adicionar Marca">
 
             <template v-slot:alertas>
@@ -98,7 +103,39 @@
                 <button type="button" class="btn btn-primary" @click="salvar()">Salvar</button>
             </template>
         </modal-component>
+        <!--final do modal de inclusão de marca-->
 
+        <!--Início do modal de visualização de marca-->
+        <modal-component id="modalMarcaVisualizar" titulo="Visualizar Marca">
+            <template v-slot:alertas>
+
+            </template>
+
+            <template v-slot:conteudo>
+                <input-container-component titulo="ID">
+                    <input type="text" class="form-control" :value="$store.state.item.id" disabled>
+                </input-container-component>
+
+                <input-container-component titulo="Nome">
+                    <input type="text" class="form-control" :value="$store.state.item.nome" disabled>
+                </input-container-component>
+
+                <input-container-component titulo="Imagem">
+                    <img :src="'storage/'+$store.state.item.imagem" v-if="$store.state.item.imagem">
+                </input-container-component>
+
+                <input-container-component titulo="Criado em:">
+                    <input type="text" class="form-control" :value="$store.state.item.created_at" disabled>
+                </input-container-component>
+
+            </template>
+
+            <template v-slot:rodape>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+            </template>
+
+        </modal-component>
+        <!--final do modal de visualização de marca-->
         
     </div>
 </template>
@@ -191,7 +228,7 @@ import axios from 'axios';
                     }
                 };
 
-                console.log(url)
+                //console.log(url)
 
                 axios.get(url, config)
                     .then(response => {

@@ -4,6 +4,8 @@
         <thead>
           <tr>
             <th scope="col" v-for="t, key in titulos" :key="key">{{ t.titulo }}</th>
+            <!--o v-if abaixo é responsável por exibir a coluna caso qualquer das variáveis seja true-->
+            <th v-if="visualizar.visivel || atualizar || remover"></th>
           </tr>
         </thead>
         <tbody>
@@ -15,7 +17,21 @@
               <span v-if="titulos[chaveValor].tipo == 'imagem'">
                 <img :src="'/storage/'+valor" width="30" height="30" />
               </span>
-              
+            </td>
+
+            <td v-if="visualizar.visivel || atualizar || remover">
+              <!--botão com data-toggle e data-target para o modal de visualização-->
+              <button
+                v-if="visualizar" 
+                class="btn btn-outline-primary btn-sm" 
+                :data-toggle="visualizar.dataToggle" 
+                :data-target="visualizar.dataTarget"
+                @click="setStore(obj)"
+              >
+                  Visualizar
+              </button>
+              <button v-if="atualizar" class="btn btn-outline-primary btn-sm">Atualizar</button>
+              <button v-if="remover" class="btn btn-outline-danger btn-sm">Remover</button>
             </td>
           </tr>
 
@@ -41,7 +57,14 @@
 
 <script>
 export default {
-    props:['dados', 'titulos'],
+    props:['dados', 'titulos', 'visualizar', 'atualizar', 'remover'],
+    methods:{
+        setStore(obj){
+            //armazenará no state item global o objeto passado por parâmetro
+            this.$store.state.item = obj
+            console.log(obj);
+        }
+    },
     computed:{
       dadosFiltrados(){
 
