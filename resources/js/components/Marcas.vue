@@ -38,7 +38,7 @@
                          :dados="marcas.data"
                          :visualizar="{ visivel:true, dataToggle:'modal', dataTarget:'#modalMarcaVisualizar'}"
                          :atualizar="true"
-                         :remover="true"
+                         :remover="{ visivel:true, dataToggle:'modal', dataTarget:'#modalMarcaRemover'}"
                          :titulos="{
                             //caso deseje-se mais ou menos colunas, basta adicionar/remover aqui os títulos correspondentes às colunas no db
                             id: {titulo: 'ID', tipo: 'text'},
@@ -136,6 +136,44 @@
 
         </modal-component>
         <!--final do modal de visualização de marca-->
+
+        <!--Início do modal de remoção de marca-->
+        <modal-component id="modalMarcaRemover" titulo="Remover Marca">
+            <template v-slot:alertas>
+                <alert-component tipo="success" titulo="Transação realizada com sucesso!" :detalhes="$store.state.transacao"
+                    v-if="$store.state.transacao.status == 'sucesso'"
+                >
+
+                </alert-component>
+                <alert-component tipo="danger" titulo="Erro na transação." :detalhes="$store.state.transacao"
+                    v-if="$store.state.transacao.status == 'erro'"
+                >
+
+                </alert-component>
+            </template>
+
+            <template v-slot:conteudo v-if="$store.state.transacao.status != 'sucesso'">
+                <input-container-component titulo="ID">
+                    <input type="text" class="form-control" :value="$store.state.item.id" disabled>
+                </input-container-component>
+
+                <input-container-component titulo="Nome">
+                    <input type="text" class="form-control" :value="$store.state.item.nome" disabled>
+                </input-container-component>
+
+                <input-container-component titulo="Imagem">
+                    <img :src="'storage/'+$store.state.item.imagem" v-if="$store.state.item.imagem">
+                </input-container-component>
+
+            </template>
+
+            <template v-slot:rodape>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-danger" @click="remover()" v-if="$store.state.transacao.status != 'sucesso'">Remover</button>
+            </template>
+
+        </modal-component>
+        <!--final do modal de remoção de marca-->
         
     </div>
 </template>
@@ -174,6 +212,46 @@ import axios from 'axios';
         },
 
         methods:{
+            remover(){
+                let confirmacao = confirm('Tem certeza que deseja remover o registro?');
+
+                if(!confirmacao){
+                    return false;
+                } 
+
+                let url = this.urlBase + '/' + this.$store.state.item.id;
+                
+                console.log(this.$store.state.transacao)
+                let formData = new FormData();
+                /*
+                    adicionar o verbo http 'delete' no append é necessário
+                    para que o sistema entenda que, mesmo que o axios faça a req
+                    via post, o objetivo é fazer uma operação de delete.
+                */
+                formData.append('_method', 'delete')
+
+                let config = {
+                    headers:{
+                        'Accept' : 'application/json',
+                        'Authorization' : this.token
+                    }
+                }
+
+               axios.post(url, formData, config)
+                    .then(response => {
+                        //console.log("Registro removido com sucesso", response)
+                        this.$store.state.transacao.status = 'sucesso';
+                        this.$store.state.transacao.mensagem = response.data.msg;
+                        this.carregarLista()
+                    })
+                    .catch(errors => {
+                        this.$store.state.transacao.status = 'erro';
+                        this.$store.state.transacao.mensagem = errors.response.data.erro;
+                        console.log('Erro na remoção.', errors.response)
+                    })
+                    
+                console.log('chegamos até aqui');
+            },
             pesquisar(){
                 //console.log(this.busca);
 
@@ -266,6 +344,7 @@ import axios from 'axios';
                         this.transacaoDetalhes = {
                             mensagem: 'ID do registro: ' + response.data.id
                         };
+                        this.carregarLista()
                         //console.log(response);
                     })
                     .catch(errors => {

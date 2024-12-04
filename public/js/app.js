@@ -2474,6 +2474,44 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
@@ -2506,6 +2544,39 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   methods: {
+    remover: function remover() {
+      var _this = this;
+      var confirmacao = confirm('Tem certeza que deseja remover o registro?');
+      if (!confirmacao) {
+        return false;
+      }
+      var url = this.urlBase + '/' + this.$store.state.item.id;
+      console.log(this.$store.state.transacao);
+      var formData = new FormData();
+      /*
+          adicionar o verbo http 'delete' no append é necessário
+          para que o sistema entenda que, mesmo que o axios faça a req
+          via post, o objetivo é fazer uma operação de delete.
+      */
+      formData.append('_method', 'delete');
+      var config = {
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': this.token
+        }
+      };
+      axios__WEBPACK_IMPORTED_MODULE_0___default().post(url, formData, config).then(function (response) {
+        //console.log("Registro removido com sucesso", response)
+        _this.$store.state.transacao.status = 'sucesso';
+        _this.$store.state.transacao.mensagem = response.data.msg;
+        _this.carregarLista();
+      })["catch"](function (errors) {
+        _this.$store.state.transacao.status = 'erro';
+        _this.$store.state.transacao.mensagem = errors.response.data.erro;
+        console.log('Erro na remoção.', errors.response);
+      });
+      console.log('chegamos até aqui');
+    },
     pesquisar: function pesquisar() {
       //console.log(this.busca);
 
@@ -2542,7 +2613,7 @@ __webpack_require__.r(__webpack_exports__);
       }
     },
     carregarLista: function carregarLista() {
-      var _this = this;
+      var _this2 = this;
       /*
           variável url que armazenará os parâmetros de paginação e a url
           base para que não haja conflito com a paginação do laravel quando
@@ -2559,7 +2630,7 @@ __webpack_require__.r(__webpack_exports__);
       //console.log(url)
 
       axios__WEBPACK_IMPORTED_MODULE_0___default().get(url, config).then(function (response) {
-        _this.marcas = response.data;
+        _this2.marcas = response.data;
         //console.log(this.marcas)
       })["catch"](function (errors) {
         console.log(errors);
@@ -2569,7 +2640,7 @@ __webpack_require__.r(__webpack_exports__);
       this.arquivoImagem = e.target.files;
     },
     salvar: function salvar() {
-      var _this2 = this;
+      var _this3 = this;
       //console.log(this.nomeMarca, this.arquivoImagem[0]);
 
       var formData = new FormData();
@@ -2585,14 +2656,15 @@ __webpack_require__.r(__webpack_exports__);
 
       //url, conteúdo, config
       axios__WEBPACK_IMPORTED_MODULE_0___default().post(this.urlBase, formData, config).then(function (response) {
-        _this2.transacaoStatus = 'adicionado';
-        _this2.transacaoDetalhes = {
+        _this3.transacaoStatus = 'adicionado';
+        _this3.transacaoDetalhes = {
           mensagem: 'ID do registro: ' + response.data.id
         };
+        _this3.carregarLista();
         //console.log(response);
       })["catch"](function (errors) {
-        _this2.transacaoStatus = 'erro';
-        _this2.transacaoDetalhes = {
+        _this3.transacaoStatus = 'erro';
+        _this3.transacaoDetalhes = {
           mensagem: errors.response.data.message,
           dados: errors.response.data.errors
         };
@@ -2747,14 +2819,26 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   props: ['dados', 'titulos', 'visualizar', 'atualizar', 'remover'],
   methods: {
     setStore: function setStore(obj) {
+      //reiniciará os status da transação para que os dados de sucesso/erro sejam definidos como vazios
+      this.$store.state.transacao.status = '';
+      //reiniciará as mensagens da transação para que os dados de sucesso/erro sejam definidos como vazios
+      this.$store.state.transacao.mensagem = '';
       //armazenará no state item global o objeto passado por parâmetro
       this.$store.state.item = obj;
-      console.log(obj);
+      //console.log(obj);
     }
   },
   computed: {
@@ -2812,7 +2896,11 @@ Vue.use(vuex__WEBPACK_IMPORTED_MODULE_0__["default"]);
 var store = new vuex__WEBPACK_IMPORTED_MODULE_0__["default"].Store({
   state: {
     //state armazena os atributos que serão armazenados globalmente
-    item: {}
+    item: {},
+    transacao: {
+      status: '',
+      mensagem: ''
+    }
   }
 });
 
@@ -39356,7 +39444,11 @@ var render = function () {
                             dataTarget: "#modalMarcaVisualizar",
                           },
                           atualizar: true,
-                          remover: true,
+                          remover: {
+                            visivel: true,
+                            dataToggle: "modal",
+                            dataTarget: "#modalMarcaRemover",
+                          },
                           titulos: {
                             //caso deseje-se mais ou menos colunas, basta adicionar/remover aqui os títulos correspondentes às colunas no db
                             id: { titulo: "ID", tipo: "text" },
@@ -39672,6 +39764,123 @@ var render = function () {
           },
         ]),
       }),
+      _vm._v(" "),
+      _c("modal-component", {
+        attrs: { id: "modalMarcaRemover", titulo: "Remover Marca" },
+        scopedSlots: _vm._u(
+          [
+            {
+              key: "alertas",
+              fn: function () {
+                return [
+                  _vm.$store.state.transacao.status == "sucesso"
+                    ? _c("alert-component", {
+                        attrs: {
+                          tipo: "success",
+                          titulo: "Transação realizada com sucesso!",
+                          detalhes: _vm.$store.state.transacao,
+                        },
+                      })
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.$store.state.transacao.status == "erro"
+                    ? _c("alert-component", {
+                        attrs: {
+                          tipo: "danger",
+                          titulo: "Erro na transação.",
+                          detalhes: _vm.$store.state.transacao,
+                        },
+                      })
+                    : _vm._e(),
+                ]
+              },
+              proxy: true,
+            },
+            _vm.$store.state.transacao.status != "sucesso"
+              ? {
+                  key: "conteudo",
+                  fn: function () {
+                    return [
+                      _c(
+                        "input-container-component",
+                        { attrs: { titulo: "ID" } },
+                        [
+                          _c("input", {
+                            staticClass: "form-control",
+                            attrs: { type: "text", disabled: "" },
+                            domProps: { value: _vm.$store.state.item.id },
+                          }),
+                        ]
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "input-container-component",
+                        { attrs: { titulo: "Nome" } },
+                        [
+                          _c("input", {
+                            staticClass: "form-control",
+                            attrs: { type: "text", disabled: "" },
+                            domProps: { value: _vm.$store.state.item.nome },
+                          }),
+                        ]
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "input-container-component",
+                        { attrs: { titulo: "Imagem" } },
+                        [
+                          _vm.$store.state.item.imagem
+                            ? _c("img", {
+                                attrs: {
+                                  src:
+                                    "storage/" + _vm.$store.state.item.imagem,
+                                },
+                              })
+                            : _vm._e(),
+                        ]
+                      ),
+                    ]
+                  },
+                  proxy: true,
+                }
+              : null,
+            {
+              key: "rodape",
+              fn: function () {
+                return [
+                  _c(
+                    "button",
+                    {
+                      staticClass: "btn btn-secondary",
+                      attrs: { type: "button", "data-dismiss": "modal" },
+                    },
+                    [_vm._v("Fechar")]
+                  ),
+                  _vm._v(" "),
+                  _vm.$store.state.transacao.status != "sucesso"
+                    ? _c(
+                        "button",
+                        {
+                          staticClass: "btn btn-danger",
+                          attrs: { type: "button" },
+                          on: {
+                            click: function ($event) {
+                              return _vm.remover()
+                            },
+                          },
+                        },
+                        [_vm._v("Remover")]
+                      )
+                    : _vm._e(),
+                ]
+              },
+              proxy: true,
+            },
+          ],
+          null,
+          true
+        ),
+      }),
     ],
     1
   )
@@ -39824,7 +40033,7 @@ var render = function () {
               ])
             }),
             _vm._v(" "),
-            _vm.visualizar.visivel || _vm.atualizar || _vm.remover
+            _vm.visualizar.visivel || _vm.atualizar || _vm.remover.visivel
               ? _c("th")
               : _vm._e(),
           ],
@@ -39863,7 +40072,7 @@ var render = function () {
                 ])
               }),
               _vm._v(" "),
-              _vm.visualizar.visivel || _vm.atualizar || _vm.remover
+              _vm.visualizar.visivel || _vm.atualizar || _vm.remover.visivel
                 ? _c("td", [
                     _vm.visualizar
                       ? _c(
@@ -39899,8 +40108,23 @@ var render = function () {
                     _vm.remover
                       ? _c(
                           "button",
-                          { staticClass: "btn btn-outline-danger btn-sm" },
-                          [_vm._v("Remover")]
+                          {
+                            staticClass: "btn btn-outline-danger btn-sm",
+                            attrs: {
+                              "data-toggle": _vm.remover.dataToggle,
+                              "data-target": _vm.remover.dataTarget,
+                            },
+                            on: {
+                              click: function ($event) {
+                                return _vm.setStore(obj)
+                              },
+                            },
+                          },
+                          [
+                            _vm._v(
+                              "\r\n                Remover\r\n              "
+                            ),
+                          ]
                         )
                       : _vm._e(),
                   ])

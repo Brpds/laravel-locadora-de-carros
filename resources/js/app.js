@@ -18,6 +18,7 @@ const store = new Vuex.Store({
     state:{
         //state armazena os atributos que serão armazenados globalmente
         item: {},
+        transacao:{ status: '', mensagem: ''}
     }
 });
 
