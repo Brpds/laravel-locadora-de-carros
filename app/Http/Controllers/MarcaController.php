@@ -129,12 +129,29 @@ class MarcaController extends Controller
         }
 
         //função que se encarregará de apagar o arquivo imagem quando um novo for enviado
+        /*if($request->file('imagem')){
+            Storage::disk('public')->delete($marca->imagem);
+        }*/
+
+        //preencher o objeto marca com todos os elementos do objeto
+        $marca->fill($request->all());
+
+        //verificar se a imagem foi encaminhada na requisição:
         if($request->file('imagem')){
             Storage::disk('public')->delete($marca->imagem);
-        }
 
-        $imagem = $request->file('imagem');
-        $imagem_urn = $imagem->store('imagens', 'public');
+            $imagem = $request->file('imagem');
+
+            $imagem_urn = $imagem->store('imagens', 'public');
+
+            $marca->imagem = $imagem_urn;
+        };
+        $marca->save();
+
+        return response()->json($marca, 200);
+
+        //$imagem = $request->file('imagem');
+        //$imagem_urn = $imagem->store('imagens', 'public');
 
         /*
             preencher o objeto $marca com os dados do request.
@@ -142,14 +159,14 @@ class MarcaController extends Controller
             sejam preenchidos com os itens anteriores da request no objeto, permitindo
             que o método patch funcione corretamente
         */
-        $marca->fill($request->all());
-        $marca->imagem = $imagem_urn;
+        //$marca->fill($request->all());
+        //$marca->imagem = $imagem_urn;
 
         /*
             o método save se encarrega de salvar as alterações, criando um novo
             registro caso o id seja diferente
         */
-        $marca->save();
+        //$marca->save();
 
         /*
         $marca->update([
@@ -158,7 +175,7 @@ class MarcaController extends Controller
         ]);
         */
 
-        return response()->json($marca, 200);
+        //return response()->json($marca, 200);
     }
 
     /**

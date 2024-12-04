@@ -5,7 +5,7 @@
           <tr>
             <th scope="col" v-for="t, key in titulos" :key="key">{{ t.titulo }}</th>
             <!--o v-if abaixo é responsável por exibir a coluna caso qualquer das variáveis seja true-->
-            <th v-if="visualizar.visivel || atualizar || remover.visivel"></th>
+            <th v-if="visualizar.visivel || atualizar.visivel || remover.visivel"></th>
           </tr>
         </thead>
         <tbody>
@@ -19,7 +19,7 @@
               </span>
             </td>
 
-            <td v-if="visualizar.visivel || atualizar || remover.visivel">
+            <td v-if="visualizar.visivel || atualizar.visivel || remover.visivel">
               <!--botão com data-toggle e data-target para o modal de visualização-->
               <button
                 v-if="visualizar" 
@@ -30,7 +30,16 @@
               >
                   Visualizar
               </button>
-              <button v-if="atualizar" class="btn btn-outline-primary btn-sm">Atualizar</button>
+              <button 
+                v-if="atualizar.visivel" 
+                class="btn btn-outline-primary btn-sm"
+                :data-toggle="atualizar.dataToggle"  
+                :data-target="atualizar.dataTarget"
+                @click="setStore(obj)"
+              >
+                Atualizar
+              </button>
+
               <button 
                 v-if="remover" 
                 class="btn btn-outline-danger btn-sm"
@@ -72,6 +81,8 @@ export default {
             this.$store.state.transacao.status = ''
             //reiniciará as mensagens da transação para que os dados de sucesso/erro sejam definidos como vazios
             this.$store.state.transacao.mensagem = ''
+            //reiniciará a mensagem de dados da transação para que os dados de sucesso/erro sejam definidos como vazios
+            this.$store.state.transacao.dados = ''
             //armazenará no state item global o objeto passado por parâmetro
             this.$store.state.item = obj
             //console.log(obj);

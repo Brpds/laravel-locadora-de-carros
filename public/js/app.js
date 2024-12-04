@@ -2512,6 +2512,38 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
@@ -2544,8 +2576,43 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   methods: {
-    remover: function remover() {
+    atualizar: function atualizar() {
       var _this = this;
+      // console.log('nome atualizado: ', this.$store.state.item.nome)
+      // console.log('imagem: ', this.arquivoImagem)
+      // console.log('verbo http', 'patch')
+
+      var formData = new FormData();
+      formData.append('_method', 'patch');
+      formData.append('nome', this.$store.state.item.nome);
+      if (this.arquivoImagem[0]) {
+        formData.append('imagem', this.arquivoImagem[0]);
+      }
+      var url = this.urlBase + '/' + this.$store.state.item.id;
+      var config = {
+        headers: {
+          //por ter um envio de file tipo imagem, requer o content-type sinalizando que é um multipart/form-data
+          'Content-type': 'multipart/form-data',
+          'Accept': 'application/json',
+          'Authorization': this.token
+        }
+      };
+      axios__WEBPACK_IMPORTED_MODULE_0___default().post(url, formData, config).then(function (response) {
+        //console.log('Atualizado', response)
+        //limpar o campo de seleção de arquivo
+        atualizarImagem.value = '';
+        _this.carregarLista();
+        _this.$store.state.transacao.status = 'sucesso';
+        _this.$store.state.transacao.mensagem = 'Registro de marca atualizado com sucesso!';
+      })["catch"](function (errors) {
+        //console.log('Erro! ', errors.response)
+        _this.$store.state.transacao.status = 'erro';
+        _this.$store.state.transacao.mensagem = errors.response.data.message;
+        _this.$store.state.transacao.dados = errors.response.data.errors;
+      });
+    },
+    remover: function remover() {
+      var _this2 = this;
       var confirmacao = confirm('Tem certeza que deseja remover o registro?');
       if (!confirmacao) {
         return false;
@@ -2567,12 +2634,12 @@ __webpack_require__.r(__webpack_exports__);
       };
       axios__WEBPACK_IMPORTED_MODULE_0___default().post(url, formData, config).then(function (response) {
         //console.log("Registro removido com sucesso", response)
-        _this.$store.state.transacao.status = 'sucesso';
-        _this.$store.state.transacao.mensagem = response.data.msg;
-        _this.carregarLista();
+        _this2.$store.state.transacao.status = 'sucesso';
+        _this2.$store.state.transacao.mensagem = response.data.msg;
+        _this2.carregarLista();
       })["catch"](function (errors) {
-        _this.$store.state.transacao.status = 'erro';
-        _this.$store.state.transacao.mensagem = errors.response.data.erro;
+        _this2.$store.state.transacao.status = 'erro';
+        _this2.$store.state.transacao.mensagem = errors.response.data.erro;
         console.log('Erro na remoção.', errors.response);
       });
       console.log('chegamos até aqui');
@@ -2613,7 +2680,7 @@ __webpack_require__.r(__webpack_exports__);
       }
     },
     carregarLista: function carregarLista() {
-      var _this2 = this;
+      var _this3 = this;
       /*
           variável url que armazenará os parâmetros de paginação e a url
           base para que não haja conflito com a paginação do laravel quando
@@ -2630,7 +2697,7 @@ __webpack_require__.r(__webpack_exports__);
       //console.log(url)
 
       axios__WEBPACK_IMPORTED_MODULE_0___default().get(url, config).then(function (response) {
-        _this2.marcas = response.data;
+        _this3.marcas = response.data;
         //console.log(this.marcas)
       })["catch"](function (errors) {
         console.log(errors);
@@ -2640,7 +2707,7 @@ __webpack_require__.r(__webpack_exports__);
       this.arquivoImagem = e.target.files;
     },
     salvar: function salvar() {
-      var _this3 = this;
+      var _this4 = this;
       //console.log(this.nomeMarca, this.arquivoImagem[0]);
 
       var formData = new FormData();
@@ -2656,15 +2723,15 @@ __webpack_require__.r(__webpack_exports__);
 
       //url, conteúdo, config
       axios__WEBPACK_IMPORTED_MODULE_0___default().post(this.urlBase, formData, config).then(function (response) {
-        _this3.transacaoStatus = 'adicionado';
-        _this3.transacaoDetalhes = {
+        _this4.transacaoStatus = 'adicionado';
+        _this4.transacaoDetalhes = {
           mensagem: 'ID do registro: ' + response.data.id
         };
-        _this3.carregarLista();
+        _this4.carregarLista();
         //console.log(response);
       })["catch"](function (errors) {
-        _this3.transacaoStatus = 'erro';
-        _this3.transacaoDetalhes = {
+        _this4.transacaoStatus = 'erro';
+        _this4.transacaoDetalhes = {
           mensagem: errors.response.data.message,
           dados: errors.response.data.errors
         };
@@ -2827,6 +2894,15 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   props: ['dados', 'titulos', 'visualizar', 'atualizar', 'remover'],
@@ -2836,6 +2912,8 @@ __webpack_require__.r(__webpack_exports__);
       this.$store.state.transacao.status = '';
       //reiniciará as mensagens da transação para que os dados de sucesso/erro sejam definidos como vazios
       this.$store.state.transacao.mensagem = '';
+      //reiniciará a mensagem de dados da transação para que os dados de sucesso/erro sejam definidos como vazios
+      this.$store.state.transacao.dados = '';
       //armazenará no state item global o objeto passado por parâmetro
       this.$store.state.item = obj;
       //console.log(obj);
@@ -2899,7 +2977,8 @@ var store = new vuex__WEBPACK_IMPORTED_MODULE_0__["default"].Store({
     item: {},
     transacao: {
       status: '',
-      mensagem: ''
+      mensagem: '',
+      dados: ''
     }
   }
 });
@@ -39443,7 +39522,11 @@ var render = function () {
                             dataToggle: "modal",
                             dataTarget: "#modalMarcaVisualizar",
                           },
-                          atualizar: true,
+                          atualizar: {
+                            visivel: true,
+                            dataToggle: "modal",
+                            dataTarget: "#modalMarcaAtualizar",
+                          },
                           remover: {
                             visivel: true,
                             dataToggle: "modal",
@@ -39604,9 +39687,6 @@ var render = function () {
                         }),
                       ]
                     ),
-                    _vm._v(
-                      "\n            " + _vm._s(_vm.nomeMarca) + "\n        "
-                    ),
                   ],
                   1
                 ),
@@ -39641,11 +39721,6 @@ var render = function () {
                           },
                         }),
                       ]
-                    ),
-                    _vm._v(
-                      "\n            " +
-                        _vm._s(_vm.arquivoImagem) +
-                        "\n        "
                     ),
                   ],
                   1
@@ -39881,6 +39956,162 @@ var render = function () {
           true
         ),
       }),
+      _vm._v(" "),
+      _c("modal-component", {
+        attrs: { id: "modalMarcaAtualizar", titulo: "Atualizar Marca" },
+        scopedSlots: _vm._u([
+          {
+            key: "alertas",
+            fn: function () {
+              return [
+                _vm.$store.state.transacao.status == "sucesso"
+                  ? _c("alert-component", {
+                      attrs: {
+                        tipo: "success",
+                        titulo: "Transação realizada com sucesso!",
+                        detalhes: _vm.$store.state.transacao,
+                      },
+                    })
+                  : _vm._e(),
+                _vm._v(" "),
+                _vm.$store.state.transacao.status == "erro"
+                  ? _c("alert-component", {
+                      attrs: {
+                        tipo: "danger",
+                        titulo: "Erro na transação.",
+                        detalhes: _vm.$store.state.transacao,
+                      },
+                    })
+                  : _vm._e(),
+              ]
+            },
+            proxy: true,
+          },
+          {
+            key: "conteudo",
+            fn: function () {
+              return [
+                _c(
+                  "div",
+                  { staticClass: "form-group" },
+                  [
+                    _c(
+                      "input-container-component",
+                      {
+                        attrs: {
+                          id: "atualizarNome",
+                          titulo: "Nome",
+                          "id-help": "atualizarNomeHelp",
+                          "texto-ajuda": "Informe o Nome da marca:",
+                        },
+                      },
+                      [
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.$store.state.item.nome,
+                              expression: "$store.state.item.nome",
+                            },
+                          ],
+                          staticClass: "form-control",
+                          attrs: {
+                            type: "text",
+                            id: "atualizarNome",
+                            "aria-describedby": "atualizarNomeHelp",
+                            placeholder: "Nome da Marca",
+                          },
+                          domProps: { value: _vm.$store.state.item.nome },
+                          on: {
+                            input: function ($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.$set(
+                                _vm.$store.state.item,
+                                "nome",
+                                $event.target.value
+                              )
+                            },
+                          },
+                        }),
+                      ]
+                    ),
+                  ],
+                  1
+                ),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  { staticClass: "form-group" },
+                  [
+                    _c(
+                      "input-container-component",
+                      {
+                        attrs: {
+                          id: "atualizarImagem",
+                          titulo: "Imagem",
+                          "id-help": "atualizarImagemHelp",
+                          "texto-ajuda": "Adicione uma imagem",
+                        },
+                      },
+                      [
+                        _c("input", {
+                          staticClass: "form-control-file",
+                          attrs: {
+                            type: "file",
+                            id: "atualizarImagem",
+                            "aria-describedby": "atualizarImagemHelp",
+                            placeholder: "Adicione Imagem",
+                          },
+                          on: {
+                            change: function ($event) {
+                              return _vm.carregarImagem($event)
+                            },
+                          },
+                        }),
+                      ]
+                    ),
+                  ],
+                  1
+                ),
+              ]
+            },
+            proxy: true,
+          },
+          {
+            key: "rodape",
+            fn: function () {
+              return [
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-secondary",
+                    attrs: { type: "button", "data-dismiss": "modal" },
+                  },
+                  [_vm._v("Fechar")]
+                ),
+                _vm._v(" "),
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-primary",
+                    attrs: { type: "button" },
+                    on: {
+                      click: function ($event) {
+                        return _vm.atualizar()
+                      },
+                    },
+                  },
+                  [_vm._v("Atualizar")]
+                ),
+              ]
+            },
+            proxy: true,
+          },
+        ]),
+      }),
     ],
     1
   )
@@ -40033,7 +40264,9 @@ var render = function () {
               ])
             }),
             _vm._v(" "),
-            _vm.visualizar.visivel || _vm.atualizar || _vm.remover.visivel
+            _vm.visualizar.visivel ||
+            _vm.atualizar.visivel ||
+            _vm.remover.visivel
               ? _c("th")
               : _vm._e(),
           ],
@@ -40072,7 +40305,9 @@ var render = function () {
                 ])
               }),
               _vm._v(" "),
-              _vm.visualizar.visivel || _vm.atualizar || _vm.remover.visivel
+              _vm.visualizar.visivel ||
+              _vm.atualizar.visivel ||
+              _vm.remover.visivel
                 ? _c("td", [
                     _vm.visualizar
                       ? _c(
@@ -40097,11 +40332,26 @@ var render = function () {
                         )
                       : _vm._e(),
                     _vm._v(" "),
-                    _vm.atualizar
+                    _vm.atualizar.visivel
                       ? _c(
                           "button",
-                          { staticClass: "btn btn-outline-primary btn-sm" },
-                          [_vm._v("Atualizar")]
+                          {
+                            staticClass: "btn btn-outline-primary btn-sm",
+                            attrs: {
+                              "data-toggle": _vm.atualizar.dataToggle,
+                              "data-target": _vm.atualizar.dataTarget,
+                            },
+                            on: {
+                              click: function ($event) {
+                                return _vm.setStore(obj)
+                              },
+                            },
+                          },
+                          [
+                            _vm._v(
+                              "\r\n                Atualizar\r\n              "
+                            ),
+                          ]
                         )
                       : _vm._e(),
                     _vm._v(" "),
