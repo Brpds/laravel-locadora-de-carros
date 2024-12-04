@@ -2642,7 +2642,6 @@ __webpack_require__.r(__webpack_exports__);
         _this2.$store.state.transacao.mensagem = errors.response.data.erro;
         console.log('Erro na remoção.', errors.response);
       });
-      console.log('chegamos até aqui');
     },
     pesquisar: function pesquisar() {
       //console.log(this.busca);
@@ -2906,6 +2905,23 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   props: ['dados', 'titulos', 'visualizar', 'atualizar', 'remover'],
+  filters: {
+    formataDataTempo: function formataDataTempo(d) {
+      if (!d) return '';
+      d = d.split('T');
+      var data = d[0];
+      var tempo = d[1];
+
+      //formatar a data
+      data = data.split('-');
+      data = data[2] + '/' + data[1] + '/' + data[0];
+
+      //formatar o tempo
+      tempo = tempo.split('.');
+      tempo = tempo[0];
+      return data + ' ' + tempo;
+    }
+  },
   methods: {
     setStore: function setStore(obj) {
       //reiniciará os status da transação para que os dados de sucesso/erro sejam definidos como vazios
@@ -3011,6 +3027,21 @@ Vue.component('pagination-component', (__webpack_require__(/*! ./components/Pagi
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
+Vue.filter('formataDataTempoGlobal', function (d) {
+  if (!d) return '';
+  d = d.split('T');
+  var data = d[0];
+  var tempo = d[1];
+
+  //formatar a data
+  data = data.split('-');
+  data = data[2] + '/' + data[1] + '/' + data[0];
+
+  //formatar o tempo
+  tempo = tempo.split('.');
+  tempo = tempo[0];
+  return data + ' ' + tempo;
+});
 var app = new Vue({
   el: '#app',
   store: store
@@ -40288,7 +40319,9 @@ var render = function () {
                     : _vm._e(),
                   _vm._v(" "),
                   _vm.titulos[chaveValor].tipo == "data"
-                    ? _c("span", [_vm._v(_vm._s("..." + valor))])
+                    ? _c("span", [
+                        _vm._v(_vm._s(_vm._f("formataDataTempoGlobal")(valor))),
+                      ])
                     : _vm._e(),
                   _vm._v(" "),
                   _vm.titulos[chaveValor].tipo == "imagem"

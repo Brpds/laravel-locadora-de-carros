@@ -13,7 +13,7 @@
           <tr v-for="obj, chave in dadosFiltrados" :key="chave">
             <td v-for="valor, chaveValor in obj" :key="chaveValor">
               <span v-if="titulos[chaveValor].tipo == 'text'">{{ valor }}</span>
-              <span v-if="titulos[chaveValor].tipo == 'data'">{{ '...' + valor }}</span>
+              <span v-if="titulos[chaveValor].tipo == 'data'">{{ valor | formataDataTempoGlobal }}</span>
               <span v-if="titulos[chaveValor].tipo == 'imagem'">
                 <img :src="'/storage/'+valor" width="30" height="30" />
               </span>
@@ -75,6 +75,26 @@
 <script>
 export default {
     props:['dados', 'titulos', 'visualizar', 'atualizar', 'remover'],
+    filters:{
+        formataDataTempo(d){
+
+            if(!d) return ''
+            d = d.split('T')
+
+            let data = d[0];
+            let tempo = d[1];
+
+            //formatar a data
+            data = data.split('-')
+            data = data[2] + '/' + data[1] + '/' + data[0]
+
+            //formatar o tempo
+            tempo = tempo.split('.')
+            tempo = tempo[0]
+
+            return data + ' ' + tempo
+        }
+    },
     methods:{
         setStore(obj){
             //reiniciará os status da transação para que os dados de sucesso/erro sejam definidos como vazios

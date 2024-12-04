@@ -324,7 +324,6 @@ import axios from 'axios';
                         console.log('Erro na remoção.', errors.response)
                     })
                     
-                console.log('chegamos até aqui');
             },
             pesquisar(){
                 //console.log(this.busca);
