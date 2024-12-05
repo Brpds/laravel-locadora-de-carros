@@ -2547,16 +2547,6 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  computed: {
-    token: function token() {
-      var token = document.cookie.split(';').find(function (index) {
-        return index.includes('token=');
-      });
-      token = token.split('=')[1];
-      token = 'Bearer ' + token;
-      return token;
-    }
-  },
   data: function data() {
     return {
       urlBase: 'http://localhost:8000/api/v1/marca',
@@ -2592,9 +2582,7 @@ __webpack_require__.r(__webpack_exports__);
       var config = {
         headers: {
           //por ter um envio de file tipo imagem, requer o content-type sinalizando que é um multipart/form-data
-          'Content-type': 'multipart/form-data',
-          'Accept': 'application/json',
-          'Authorization': this.token
+          'Content-type': 'multipart/form-data'
         }
       };
       axios__WEBPACK_IMPORTED_MODULE_0___default().post(url, formData, config).then(function (response) {
@@ -2626,13 +2614,7 @@ __webpack_require__.r(__webpack_exports__);
           via post, o objetivo é fazer uma operação de delete.
       */
       formData.append('_method', 'delete');
-      var config = {
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': this.token
-        }
-      };
-      axios__WEBPACK_IMPORTED_MODULE_0___default().post(url, formData, config).then(function (response) {
+      axios__WEBPACK_IMPORTED_MODULE_0___default().post(url, formData).then(function (response) {
         //console.log("Registro removido com sucesso", response)
         _this2.$store.state.transacao.status = 'sucesso';
         _this2.$store.state.transacao.mensagem = response.data.msg;
@@ -2686,16 +2668,10 @@ __webpack_require__.r(__webpack_exports__);
           novos parâmetros de pesquisa forem passados
       */
       var url = this.urlBase + '?' + this.urlPaginacao + this.urlFiltro;
-      var config = {
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': this.token
-        }
-      };
 
       //console.log(url)
 
-      axios__WEBPACK_IMPORTED_MODULE_0___default().get(url, config).then(function (response) {
+      axios__WEBPACK_IMPORTED_MODULE_0___default().get(url).then(function (response) {
         _this3.marcas = response.data;
         //console.log(this.marcas)
       })["catch"](function (errors) {
@@ -2714,9 +2690,7 @@ __webpack_require__.r(__webpack_exports__);
       formData.append('imagem', this.arquivoImagem[0]);
       var config = {
         headers: {
-          'Content-Type': 'multipart/form-data',
-          'Accept': 'application/json',
-          'Authorization': this.token
+          'Content-Type': 'multipart/form-data'
         }
       };
 
@@ -3094,6 +3068,40 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 //     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
 //     forceTLS: true
 // });
+
+// interceptar os requests da aplicação
+axios.interceptors.request.use(function (config) {
+  //definir para todas as requisições os parâmetros Accept e Authorization
+  config.headers['Accept'] = 'application/json';
+
+  //recuperando o token de autorização dos cookies
+  var token = document.cookie.split(';').find(function (index) {
+    return index.includes('token=');
+  });
+  token = token.split('=')[1];
+  token = 'Bearer ' + token;
+  config.headers.Authorization = token;
+
+  /*
+  'Accept': 'application/json',
+  'Authorization': this.token
+  */
+  console.log('Interceptando o request antes do envio', config);
+  return config;
+}, function (error) {
+  console.log('Erro na requisição.', error);
+  return Promise.reject(error);
+});
+
+// interceptar os responses da aplicação:
+
+axios.interceptors.response.use(function (response) {
+  console.log('Interceptado antes do response', response);
+  return response;
+}, function (error) {
+  console.log('Erro. ', error);
+  return Promise.reject(error);
+});
 
 /***/ }),
 

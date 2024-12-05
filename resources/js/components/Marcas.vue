@@ -213,19 +213,6 @@
 import axios from 'axios';
 
     export default {
-        computed:{
-            token(){
-
-                let token = document.cookie.split(';').find(index => {
-                    return index.includes('token=');
-                });
-
-                token = token.split('=')[1];
-                token = 'Bearer ' + token;
-    
-                return token;
-            }
-        },
         data(){
             return {
                 urlBase:'http://localhost:8000/api/v1/marca',
@@ -265,8 +252,6 @@ import axios from 'axios';
                     headers:{
                         //por ter um envio de file tipo imagem, requer o content-type sinalizando que é um multipart/form-data
                         'Content-type': 'multipart/form-data',
-                        'Accept': 'application/json',
-                        'Authorization': this.token
                     }
                 }
 
@@ -304,14 +289,8 @@ import axios from 'axios';
                 */
                 formData.append('_method', 'delete')
 
-                let config = {
-                    headers:{
-                        'Accept' : 'application/json',
-                        'Authorization' : this.token
-                    }
-                }
 
-               axios.post(url, formData, config)
+               axios.post(url, formData)
                     .then(response => {
                         //console.log("Registro removido com sucesso", response)
                         this.$store.state.transacao.status = 'sucesso';
@@ -372,16 +351,9 @@ import axios from 'axios';
                 */
                 let url = this.urlBase + '?' + this.urlPaginacao + this.urlFiltro;
 
-                let config = {
-                    headers: {
-                        'Accept': 'application/json',
-                        'Authorization': this.token
-                    }
-                };
-
                 //console.log(url)
 
-                axios.get(url, config)
+                axios.get(url)
                     .then(response => {
                         this.marcas = response.data;
                         //console.log(this.marcas)
@@ -404,8 +376,6 @@ import axios from 'axios';
                 let config = {
                     headers: {
                         'Content-Type': 'multipart/form-data',
-                        'Accept': 'application/json',
-                        'Authorization': this.token
                     }
                 };
 
