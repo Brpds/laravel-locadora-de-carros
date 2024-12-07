@@ -2308,7 +2308,7 @@ __webpack_require__.r(__webpack_exports__);
       fetch(url, configuracao).then(function (response) {
         return response.json();
       }).then(function (data) {
-        console.log(data.token);
+        //console.log(data.token)
         if (data.token) {
           document.cookie = 'token=' + data.token + ';SameSite=Lax';
         }
@@ -3099,7 +3099,15 @@ axios.interceptors.response.use(function (response) {
   console.log('Interceptado antes do response', response);
   return response;
 }, function (error) {
-  console.log('Erro. ', error);
+  console.log('Erro. ', error.response);
+  if (error.response.status == 401 && error.response.data.message == 'Token has expired') {
+    axios.post('http://localhost:8000/api/refresh').then(function (response) {
+      console.log('Refresh com sucesso', response);
+      document.cookie = 'token=' + response.data.token + ';SameSite=Lax';
+      window.location.reload();
+      console.log('Token atualizado: ', document.cookie);
+    });
+  }
   return Promise.reject(error);
 });
 

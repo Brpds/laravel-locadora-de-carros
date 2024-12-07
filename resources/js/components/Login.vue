@@ -82,7 +82,7 @@
                 fetch(url, configuracao)
                     .then(response => response.json())
                     .then(data => {
-                        console.log(data.token)
+                        //console.log(data.token)
                         if(data.token){
                             document.cookie = 'token='+data.token+';SameSite=Lax'
                         }
